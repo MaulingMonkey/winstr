@@ -25,7 +25,7 @@ display         = []
 
 
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
-version = "0.3.9"
+version = "0.3.0"
 features = [
     # shared
     "ntdef",        # LPCWSTR
