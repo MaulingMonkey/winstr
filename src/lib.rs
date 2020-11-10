@@ -7,5 +7,5 @@
     pub mod _features;
 }
 
-#[cfg(windows)] #[path="bstring/_bstring.rs"] mod bstring;
-#[cfg(windows)] pub use bstring::*;
+#[cfg(windows)] #[cfg(feature = "bstr")] #[path="bstring/_bstring.rs"] mod bstring;
+#[cfg(windows)] #[cfg(feature = "bstr")] pub use bstring::*;

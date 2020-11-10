@@ -18,7 +18,8 @@ all-features    = true
 targets         = ["x86_64-pc-windows-msvc", "i686-pc-windows-msvc"]
 
 [features]
-default         = ["display"]
+default         = ["bstr", "display"]
+bstr            = []
 display         = []
 
 
