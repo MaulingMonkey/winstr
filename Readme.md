@@ -2,6 +2,7 @@
 
 [![GitHub](https://img.shields.io/github/stars/MaulingMonkey/winstr.svg?label=GitHub&style=social)](https://github.com/MaulingMonkey/winstr)
 [![crates.io](https://img.shields.io/crates/v/winstr.svg)](https://crates.io/crates/winstr)
+[![docs.rs](https://docs.rs/winstr/badge.svg)](https://docs.rs/winstr)
 [![rust: stable](https://img.shields.io/badge/rust-stable-yellow.svg)](https://gist.github.com/MaulingMonkey/c81a9f18811079f19326dac4daa5a359#minimum-supported-rust-versions-msrv)
 [![License](https://img.shields.io/crates/l/cargo_vsc.svg)](https://github.com/MaulingMonkey/winstr)
 [![Build Status](https://github.com/MaulingMonkey/winstr/workflows/Rust/badge.svg)](https://github.com/MaulingMonkey/winstr/actions?query=workflow%3Arust)
