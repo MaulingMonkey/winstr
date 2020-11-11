@@ -1,0 +1,23 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name            = "winstr-macros"
+version         = "0.0.0-git"
+authors         = ["MaulingMonkey <git@maulingmonkey.com>"]
+edition         = "2018"
+repository      = "https://github.com/MaulingMonkey/winstr"
+documentation   = "https://docs.rs/winstr"
+license         = "Apache-2.0 OR MIT"
+description     = "proc macro implementations for winstr"
+keywords        = []
+categories      = []
+
+[package.metadata.docs.rs]
+all-features    = true
+targets         = ["x86_64-pc-windows-msvc", "i686-pc-windows-msvc"]
+
+[features]
+bstr            = []
+
+[lib]
+proc-macro      = true

@@ -29,15 +29,25 @@ impl From< String>          for BString { fn from(value:  String    ) -> Self { 
 impl From<&OsStr>           for BString { fn from(value: &OsStr     ) -> Self { Self::from_osstr(value).unwrap() } }
 impl From<&OsString>        for BString { fn from(value: &OsString  ) -> Self { Self::from_osstr(value).unwrap() } }
 impl From< OsString>        for BString { fn from(value:  OsString  ) -> Self { Self::from_osstr(&value).unwrap() } }
-impl PartialEq<BStr>        for BString { fn eq(&self, other: &BStr    ) -> bool { self.units() == other.units() } }
-impl PartialEq<BString>     for BString { fn eq(&self, other: &BString ) -> bool { self.units() == other.units() } }
-impl PartialEq<[u16]>       for BString { fn eq(&self, other: &[u16]   ) -> bool { self.units() == other } }
-impl PartialEq<BString>     for [u16]   { fn eq(&self, other: &BString ) -> bool { other == self } }
+impl PartialEq< BStr>       for BString { fn eq(&self, other:  &BStr   ) -> bool { self.units() == other.units() } }
+impl PartialEq<&BStr>       for BString { fn eq(&self, other: &&BStr   ) -> bool { self.units() == other.units() } }
+impl PartialEq< BString>    for BString { fn eq(&self, other:  &BString) -> bool { self.units() == other.units() } }
+impl PartialEq<&BString>    for BString { fn eq(&self, other: &&BString) -> bool { self.units() == other.units() } }
+impl PartialEq< [u16]>      for BString { fn eq(&self, other:  &[u16]  ) -> bool { self.units() == other } }
+impl PartialEq<&[u16]>      for BString { fn eq(&self, other: &&[u16]  ) -> bool { self.units() == *other } }
+impl PartialEq< BString>    for  [u16]  { fn eq(&self, other:  &BString) -> bool { *other == *self } }
+impl PartialEq<&BString>    for  [u16]  { fn eq(&self, other: &&BString) -> bool { *other ==  self } }
+impl PartialEq< BString>    for &[u16]  { fn eq(&self, other:  &BString) -> bool { *other == *self } }
 impl Eq                     for BString {}
-impl PartialOrd<BStr>       for BString { fn partial_cmp(&self, other: &BStr    ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<BString>    for BString { fn partial_cmp(&self, other: &BString ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<[u16]>      for BString { fn partial_cmp(&self, other: &[u16]   ) -> Option<Ordering> { self.units().partial_cmp(other) } }
-impl PartialOrd<BString>    for [u16]   { fn partial_cmp(&self, other: &BString ) -> Option<Ordering> { other.partial_cmp(self) } }
+impl PartialOrd< BStr>      for BString { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd<&BStr>      for BString { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd< BString>   for BString { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd<&BString>   for BString { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd< [u16]>     for BString { fn partial_cmp(&self, other:  &[u16]  ) -> Option<Ordering> { self.units().partial_cmp(other) } }
+impl PartialOrd<&[u16]>     for BString { fn partial_cmp(&self, other: &&[u16]  ) -> Option<Ordering> { self.units().partial_cmp(*other) } }
+impl PartialOrd< BString>   for  [u16]  { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { other.partial_cmp(self) } }
+impl PartialOrd<&BString>   for  [u16]  { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { (*other).partial_cmp(self) } }
+impl PartialOrd< BString>   for &[u16]  { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { other.partial_cmp(self) } }
 impl Ord                    for BString { fn cmp(&self, other: &BString) -> Ordering { self.units().cmp(other.units()) } }
 impl Hash                   for BString { fn hash<H: Hasher>(&self, state: &mut H) { self.units().hash(state) } }
 
@@ -47,15 +57,25 @@ impl Debug                  for BStr    { fn fmt(&self, fmt: &mut Formatter) -> 
 impl AsRef<BStr>            for BStr    { fn as_ref(&self) -> &BStr { self } }
 impl AsRef<[u16]>           for BStr    { fn as_ref(&self) -> &[u16] { self.units() } }
 impl Borrow<[u16]>          for BStr    { fn borrow(&self) -> &[u16] { self.units() } }
-impl PartialEq<BStr>        for BStr    { fn eq(&self, other: &BStr    ) -> bool { self.units() == other.units() } }
-impl PartialEq<BString>     for BStr    { fn eq(&self, other: &BString ) -> bool { self.units() == other.units() } }
-impl PartialEq<[u16]>       for BStr    { fn eq(&self, other: &[u16]   ) -> bool { self.units() == other } }
-impl PartialEq<BStr>        for [u16]   { fn eq(&self, other: &BStr   ) -> bool { other == self } }
+impl PartialEq< BStr>       for BStr    { fn eq(&self, other:  &BStr   ) -> bool { self.units() == other.units() } }
+impl PartialEq<&BStr>       for BStr    { fn eq(&self, other: &&BStr   ) -> bool { self.units() == other.units() } }
+impl PartialEq< BString>    for BStr    { fn eq(&self, other:  &BString) -> bool { self.units() == other.units() } }
+impl PartialEq<&BString>    for BStr    { fn eq(&self, other: &&BString) -> bool { self.units() == other.units() } }
+impl PartialEq< [u16]>      for BStr    { fn eq(&self, other:  &[u16]  ) -> bool { self.units() == other } }
+impl PartialEq<&[u16]>      for BStr    { fn eq(&self, other: &&[u16]  ) -> bool { self.units() == *other } }
+impl PartialEq< BStr>       for  [u16]  { fn eq(&self, other:  &BStr   ) -> bool { *other == *self } }
+impl PartialEq<&BStr>       for  [u16]  { fn eq(&self, other: &&BStr   ) -> bool { *other ==  self } }
+impl PartialEq< BStr>       for &[u16]  { fn eq(&self, other:  &BStr   ) -> bool { *other == *self } }
 impl Eq                     for BStr    {}
-impl PartialOrd<BStr>       for BStr    { fn partial_cmp(&self, other: &BStr    ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<BString>    for BStr    { fn partial_cmp(&self, other: &BString ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<[u16]>      for BStr    { fn partial_cmp(&self, other: &[u16]   ) -> Option<Ordering> { self.units().partial_cmp(other) } }
-impl PartialOrd<BStr>       for [u16]   { fn partial_cmp(&self, other: &BStr    ) -> Option<Ordering> { other.partial_cmp(self) } }
+impl PartialOrd< BStr>      for BStr    { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd<&BStr>      for BStr    { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd< BString>   for BStr    { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd<&BString>   for BStr    { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
+impl PartialOrd< [u16]>     for BStr    { fn partial_cmp(&self, other:  &[u16]  ) -> Option<Ordering> { self.units().partial_cmp(other) } }
+impl PartialOrd<&[u16]>     for BStr    { fn partial_cmp(&self, other: &&[u16]  ) -> Option<Ordering> { self.units().partial_cmp(*other) } }
+impl PartialOrd< BStr>      for  [u16]  { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { other.partial_cmp(self) } }
+impl PartialOrd<&BStr>      for  [u16]  { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { (*other).partial_cmp(self) } }
+impl PartialOrd< BStr>      for &[u16]  { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { other.partial_cmp(self) } }
 impl Ord                    for BStr    { fn cmp(&self, other: &BStr) -> Ordering { self.units().cmp(other.units()) } }
 impl Hash                   for BStr    { fn hash<H: Hasher>(&self, state: &mut H) { self.units().hash(state) } }
 

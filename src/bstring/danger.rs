@@ -18,8 +18,8 @@ use std::ptr::{null, null_mut, NonNull};
 /// A valid `BSTR` is always preceeded by a 4-byte length prefix:
 /// * This length prefix excludes the terminal `0u16`
 /// * This length prefix can be 0
-/// * This length prefix can be u32::MAX for Win32 BSTRs
-/// * This length prefix **is never u32::MAX for Rust BString**s, to avoid overflows when adding 1 to include the `0u16`
+/// * This length prefix **is in bytes**, not code units!
+/// * This length in code units is always less than u32::MAX/2
 /// * `BSTR`s **cannot** be sliced and remain BSTRs.  You can slice the [u16] unicode [code unit]s instead.
 ///
 /// ### Pointer Invariants
@@ -58,7 +58,7 @@ impl BString {
         let len : usize = code_units.len();
 
         let len32 : u32 = len.try_into().ok()?;
-        if len32 == std::u32::MAX { return None; } // Don't allow construction of strings where .len0() would overflow
+        if len32 >= std::u32::MAX/2 { return None; } // Don't allow construction of strings where length in bytes would overflow
 
         let bstr = unsafe { SysAllocStringLen(null(), len32) }; // Allocates [u16; len+1]
 
@@ -86,6 +86,21 @@ impl BString {
 #[repr(transparent)] pub struct BStr(OLECHAR);
 
 impl BStr {
+    #[doc(hidden)]
+    pub fn bstr_macro_impl_detail(data: &'static [u32]) -> &'static BStr {
+        // We could make this `const` if:
+        // 1.   we could assert!() as a const fn
+        // 2.   ptr.add(...) was stabilized as a const fn
+        // 3.   we could transmute/deref as a const fn
+        let bytes_len32 = data[0];
+        let bytes_len = bytes_len32 as usize;
+        let cu_len = bytes_len/2;
+        let data : &'static [u16] = unsafe { std::slice::from_raw_parts(data.as_ptr().add(1).cast(), 2*(data.len()-1)) };
+        assert!(data[cu_len] == 0u16, "`data` was supposed to be `\0`-terminated");
+        let r : &'static BStr = unsafe { std::mem::transmute(data.as_ptr()) };
+        r
+    }
+
     /// Converts a &amp;[BSTR] into an Option&lt;&amp;[BStr]&gt;.
     /// By requiring a reference, this API [bounds] &amp;[BStr]'s lifetime, helping avoid bugs.
     ///
@@ -205,17 +220,25 @@ unsafe impl<B: AsRef<BStr>> AsOptBStrPtr for B {
 #[test] fn core_apis() {
     fn dbg<T: std::fmt::Debug>(v: &T) -> String { format!("{:?}", v) }
 
-    let hello_world = "Hello, world!";
+    let hello_world = "Hello, world!\0\r\n\t\x12\u{1234}\u{10000}©™";
     let a = BString::from_code_units(hello_world.encode_utf16().collect::<Vec<_>>().into_iter()).unwrap();
     let b : &BStr = &a;
     let c = b.as_bstr();
     let d = unsafe { BStr::from_bstr(&c) }.unwrap();
     let e = unsafe { BStr::from_bstr_unbounded(c) }.unwrap();
+    let f = bstr!("Hello, world!\0\r\n\t\x12\u{1234}\u{10000}©™");
 
     assert_eq!(dbg(&hello_world), dbg(&a));
     assert_eq!(dbg(&hello_world), dbg(&b));
     assert_eq!(dbg(&hello_world), dbg(&d));
     assert_eq!(dbg(&hello_world), dbg(&e));
+    assert_eq!(dbg(&hello_world), dbg(&f));
+
+    assert_eq!(a, a);
+    assert_eq!(a, b);
+    assert_eq!(a, d);
+    assert_eq!(a, e);
+    assert_eq!(a, f);
 
     assert_eq!(c, a.as_bstr());
     assert_eq!(c, b.as_bstr());
@@ -224,15 +247,21 @@ unsafe impl<B: AsRef<BStr>> AsOptBStrPtr for B {
     assert_eq!(a.len(), b.len()); // Plain ASCII
     assert_eq!(a.len(), d.len()); // Plain ASCII
     assert_eq!(a.len(), e.len()); // Plain ASCII
+    assert_eq!(a.len(), f.len()); // Plain ASCII
     assert_eq!(a.len(), d.len0()-1);
     assert_eq!(a.len(), e.len0()-1);
+    assert_eq!(a.len(), f.len0()-1);
     assert_eq!(d.len(), d.len32() as usize);
     assert_eq!(e.len(), e.len32() as usize);
+    assert_eq!(e.len(), f.len32() as usize);
     assert_eq!(d.len0(), d.len320() as usize);
     assert_eq!(e.len0(), e.len320() as usize);
+    assert_eq!(e.len0(), f.len320() as usize);
 
     assert!(hello_world.encode_utf16().eq(d.units().iter().copied()));
     assert!(hello_world.encode_utf16().eq(e.units().iter().copied()));
+    assert!(hello_world.encode_utf16().eq(f.units().iter().copied()));
     assert!(hello_world.encode_utf16().chain(Some(0)).eq(d.units0().iter().copied()));
     assert!(hello_world.encode_utf16().chain(Some(0)).eq(e.units0().iter().copied()));
+    assert!(hello_world.encode_utf16().chain(Some(0)).eq(f.units0().iter().copied()));
 }

@@ -1,5 +1,11 @@
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[workspace]
+members = [
+    ".",
+    "winstr-macros"
+]
+
 [package]
 name            = "winstr"
 version         = "0.0.0-git"
@@ -17,9 +23,12 @@ categories      = ["encoding", "os::windows-apis"]
 all-features    = true
 targets         = ["x86_64-pc-windows-msvc", "i686-pc-windows-msvc"]
 
+[dependencies]
+winstr-macros   = { path = "winstr-macros", version = "0.0.0-git" }
+
 [features]
 default         = ["bstr", "display"]
-bstr            = []
+bstr            = ["winstr-macros/bstr"]
 display         = []
 
 
