@@ -1,6 +1,8 @@
 #![deny(unsafe_code)]
 #![cfg_attr(not(feature = "display"), allow(unused_imports))]
 
+#[doc(hidden)] pub extern crate winstr_macros;
+
 #[cfg(doc)] pub use doc::*;
 #[cfg(doc)] mod doc {
     pub mod _alternatives;

@@ -3,7 +3,7 @@
 /// Create a &[BStr] literal at compile time
 macro_rules! bstr {
     ( $string:literal ) => {
-        winstr_macros::bstr_impl!(($crate) $string)
+        $crate::winstr_macros::bstr_impl!(($crate) $string)
     };
 }
 
@@ -11,7 +11,7 @@ macro_rules! bstr {
 #[macro_export]
 macro_rules! bstr {
     ( $($tt:tt)+ ) => {
-        winstr_macros::bstr_impl!(($crate) $($tt)+)
+        $crate::winstr_macros::bstr_impl!(($crate) $($tt)+)
     };
 }
 
