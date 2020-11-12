@@ -7,5 +7,7 @@
     pub mod _features;
 }
 
+#[cfg(windows)] mod utf16ish;
+#[cfg(windows)] use utf16ish::*;
 #[cfg(windows)] #[cfg(feature = "bstr")] #[path="bstring/_bstring.rs"] mod bstring;
 #[cfg(windows)] #[cfg(feature = "bstr")] pub use bstring::*;

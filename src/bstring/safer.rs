@@ -4,17 +4,17 @@ use crate::*;
 
 use winapi::shared::ntdef::LPCWSTR;
 
-use std::borrow::Borrow;
+use std::borrow::{Borrow, Cow};
 use std::cmp::Ordering;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{self, Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 
 
-#[cfg(feature = "display    ")]
+#[cfg(feature = "display")]
 impl Display                for BString { fn fmt(&self, fmt: &mut Formatter) -> fmt::Result { Display::fmt(&**self, fmt) } }
 impl Debug                  for BString { fn fmt(&self, fmt: &mut Formatter) -> fmt::Result { Debug::fmt(&**self, fmt) } }
 impl AsRef<BStr>            for BString { fn as_ref(&self) -> &BStr { &**self } }
@@ -29,25 +29,7 @@ impl From< String>          for BString { fn from(value:  String    ) -> Self { 
 impl From<&OsStr>           for BString { fn from(value: &OsStr     ) -> Self { Self::from_osstr(value).unwrap() } }
 impl From<&OsString>        for BString { fn from(value: &OsString  ) -> Self { Self::from_osstr(value).unwrap() } }
 impl From< OsString>        for BString { fn from(value:  OsString  ) -> Self { Self::from_osstr(&value).unwrap() } }
-impl PartialEq< BStr>       for BString { fn eq(&self, other:  &BStr   ) -> bool { self.units() == other.units() } }
-impl PartialEq<&BStr>       for BString { fn eq(&self, other: &&BStr   ) -> bool { self.units() == other.units() } }
-impl PartialEq< BString>    for BString { fn eq(&self, other:  &BString) -> bool { self.units() == other.units() } }
-impl PartialEq<&BString>    for BString { fn eq(&self, other: &&BString) -> bool { self.units() == other.units() } }
-impl PartialEq< [u16]>      for BString { fn eq(&self, other:  &[u16]  ) -> bool { self.units() == other } }
-impl PartialEq<&[u16]>      for BString { fn eq(&self, other: &&[u16]  ) -> bool { self.units() == *other } }
-impl PartialEq< BString>    for  [u16]  { fn eq(&self, other:  &BString) -> bool { *other == *self } }
-impl PartialEq<&BString>    for  [u16]  { fn eq(&self, other: &&BString) -> bool { *other ==  self } }
-impl PartialEq< BString>    for &[u16]  { fn eq(&self, other:  &BString) -> bool { *other == *self } }
 impl Eq                     for BString {}
-impl PartialOrd< BStr>      for BString { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<&BStr>      for BString { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd< BString>   for BString { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<&BString>   for BString { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd< [u16]>     for BString { fn partial_cmp(&self, other:  &[u16]  ) -> Option<Ordering> { self.units().partial_cmp(other) } }
-impl PartialOrd<&[u16]>     for BString { fn partial_cmp(&self, other: &&[u16]  ) -> Option<Ordering> { self.units().partial_cmp(*other) } }
-impl PartialOrd< BString>   for  [u16]  { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { other.partial_cmp(self) } }
-impl PartialOrd<&BString>   for  [u16]  { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { (*other).partial_cmp(self) } }
-impl PartialOrd< BString>   for &[u16]  { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { other.partial_cmp(self) } }
 impl Ord                    for BString { fn cmp(&self, other: &BString) -> Ordering { self.units().cmp(other.units()) } }
 impl Hash                   for BString { fn hash<H: Hasher>(&self, state: &mut H) { self.units().hash(state) } }
 
@@ -57,27 +39,87 @@ impl Debug                  for BStr    { fn fmt(&self, fmt: &mut Formatter) -> 
 impl AsRef<BStr>            for BStr    { fn as_ref(&self) -> &BStr { self } }
 impl AsRef<[u16]>           for BStr    { fn as_ref(&self) -> &[u16] { self.units() } }
 impl Borrow<[u16]>          for BStr    { fn borrow(&self) -> &[u16] { self.units() } }
-impl PartialEq< BStr>       for BStr    { fn eq(&self, other:  &BStr   ) -> bool { self.units() == other.units() } }
-impl PartialEq<&BStr>       for BStr    { fn eq(&self, other: &&BStr   ) -> bool { self.units() == other.units() } }
-impl PartialEq< BString>    for BStr    { fn eq(&self, other:  &BString) -> bool { self.units() == other.units() } }
-impl PartialEq<&BString>    for BStr    { fn eq(&self, other: &&BString) -> bool { self.units() == other.units() } }
-impl PartialEq< [u16]>      for BStr    { fn eq(&self, other:  &[u16]  ) -> bool { self.units() == other } }
-impl PartialEq<&[u16]>      for BStr    { fn eq(&self, other: &&[u16]  ) -> bool { self.units() == *other } }
-impl PartialEq< BStr>       for  [u16]  { fn eq(&self, other:  &BStr   ) -> bool { *other == *self } }
-impl PartialEq<&BStr>       for  [u16]  { fn eq(&self, other: &&BStr   ) -> bool { *other ==  self } }
-impl PartialEq< BStr>       for &[u16]  { fn eq(&self, other:  &BStr   ) -> bool { *other == *self } }
-impl Eq                     for BStr    {}
-impl PartialOrd< BStr>      for BStr    { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<&BStr>      for BStr    { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd< BString>   for BStr    { fn partial_cmp(&self, other:  &BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd<&BString>   for BStr    { fn partial_cmp(&self, other: &&BString) -> Option<Ordering> { self.units().partial_cmp(other.units()) } }
-impl PartialOrd< [u16]>     for BStr    { fn partial_cmp(&self, other:  &[u16]  ) -> Option<Ordering> { self.units().partial_cmp(other) } }
-impl PartialOrd<&[u16]>     for BStr    { fn partial_cmp(&self, other: &&[u16]  ) -> Option<Ordering> { self.units().partial_cmp(*other) } }
-impl PartialOrd< BStr>      for  [u16]  { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { other.partial_cmp(self) } }
-impl PartialOrd<&BStr>      for  [u16]  { fn partial_cmp(&self, other: &&BStr   ) -> Option<Ordering> { (*other).partial_cmp(self) } }
-impl PartialOrd< BStr>      for &[u16]  { fn partial_cmp(&self, other:  &BStr   ) -> Option<Ordering> { other.partial_cmp(self) } }
-impl Ord                    for BStr    { fn cmp(&self, other: &BStr) -> Ordering { self.units().cmp(other.units()) } }
-impl Hash                   for BStr    { fn hash<H: Hasher>(&self, state: &mut H) { self.units().hash(state) } }
+impl Eq                     for &BStr   {}
+impl Ord                    for &BStr   { fn cmp(&self, other: &&BStr) -> Ordering { self.units().cmp(other.units()) } }
+impl Hash                   for &BStr   { fn hash<H: Hasher>(&self, state: &mut H) { self.units().hash(state) } }
+
+// Okay, this is a *lot* of traits.  I'm just mimicing the stdlib here though.
+//
+// Sliceable DST rules, using `str` as an example
+// 1.   Implement `&str == &str` (used for `"foo" == "bar"`)
+// 2.   Implement `str  ==  str` (used for `"foo"[..] == "bar"[..]`)
+// 3.   Skip `&str == str` / `str == &str`
+// 4.   Implement `&str == ...`
+// 5.   Implement `str  == ...`
+// 6.   Implement `... == &str`
+// 7.   Implement `... ==  str`
+// 8.   All the above for ordering comparisons too
+//
+// `&BStr` is slightly simpler than `&str` - it is not sliceable and cannot be directly used as a value
+
+macro_rules! peo {
+    ( &? $left:ty, $($tt:tt)* ) => {
+        peo!(& $left, $($tt)*);
+        peo!(  $left, $($tt)*);
+    };
+    ( $left:ty, &? $($tt:tt)* ) => {
+        peo!($left, & $($tt)*);
+        peo!($left,   $($tt)*);
+    };
+    ( $left:ty, $right:ty ) => {
+        impl PartialEq<$left> for $right {
+            fn eq(&self, other: &$left) -> bool {
+                self.utf16ish().eq(other.utf16ish())
+            }
+        }
+        impl PartialOrd<$left> for $right {
+            fn partial_cmp(&self, other: &$left) -> Option<Ordering> {
+                self.utf16ish().partial_cmp(other.utf16ish())
+            }
+        }
+    };
+}
+
+peo!(&BStr,   &BStr  );
+peo!(BString, BString);
+
+peo!(BString,           &BStr  ); peo!(&BStr,   BString         );
+peo!(&?[u16],           &BStr  ); peo!(&BStr,   &?[u16]         ); // useful for wchar::wch! comparisons
+peo!(&?str,             &BStr  ); peo!(&BStr,   &?str           );
+peo!(String,            &BStr  ); peo!(&BStr,   String          );
+peo!(&?OsStr,           &BStr  ); peo!(&BStr,   &?OsStr         );
+peo!(OsString,          &BStr  ); peo!(&BStr,   OsString        );
+peo!(&?Path,            &BStr  ); peo!(&BStr,   &?Path          );
+peo!(PathBuf,           &BStr  ); peo!(&BStr,   PathBuf         );
+peo!(Cow<'_, [u16]>,    &BStr  ); peo!(&BStr,   Cow<'_, [u16]>  );
+peo!(Cow<'_, str>,      &BStr  ); peo!(&BStr,   Cow<'_, str>    );
+peo!(Cow<'_, OsStr>,    &BStr  ); peo!(&BStr,   Cow<'_, OsStr>  );
+peo!(Cow<'_, Path>,     &BStr  ); peo!(&BStr,   Cow<'_, Path>   );
+
+//peo!(&BStr,           BString); peo!(BString, &BStr           ); // already covered
+peo!(&?str,             BString); peo!(BString, &?str           );
+peo!(&?[u16],           BString); peo!(BString, &?[u16]         );
+peo!(String,            BString); peo!(BString, String          );
+peo!(&?OsStr,           BString); peo!(BString, &?OsStr         );
+peo!(OsString,          BString); peo!(BString, OsString        );
+peo!(&?Path,            BString); peo!(BString, &?Path          );
+peo!(PathBuf,           BString); peo!(BString, PathBuf         );
+peo!(Cow<'_, [u16]>,    BString); peo!(BString, Cow<'_, [u16]>  );
+peo!(Cow<'_, str>,      BString); peo!(BString, Cow<'_, str>    );
+peo!(Cow<'_, OsStr>,    BString); peo!(BString, Cow<'_, OsStr>  );
+peo!(Cow<'_, Path>,     BString); peo!(BString, Cow<'_, Path>   );
+
+
+
+impl<'s> UTF16ish<'s> for BStr {
+    type Iter = std::iter::Copied<std::slice::Iter<'s, u16>>;
+    fn utf16ish(&'s self) -> Self::Iter { self.units().iter().copied() }
+}
+
+impl<'s> UTF16ish<'s> for BString {
+    type Iter = std::iter::Copied<std::slice::Iter<'s, u16>>;
+    fn utf16ish(&'s self) -> Self::Iter { self.units().iter().copied() }
+}
 
 
 
