@@ -37,6 +37,17 @@ mod invariants {}
 /// [UTF-16]:   https://en.wikipedia.org/wiki/UTF-16
 #[repr(transparent)] pub struct BString(NonNull<OLECHAR>);
 
+/// This assumes `SysFreeString` is thread safe (in the sense that you can call it on a BSTR allocated by another thread.)
+/// Considering how much BSTRs are used throughout MTA COM, `SysFreeString` *better* be thread safe!
+/// While MSDN's documentation is limited on this front, stack overflow confirms:
+///
+/// Q: [Is it safe to deallocate a BSTR on a different thread than it was allocated on?](https://stackoverflow.com/questions/31341262/is-it-safe-to-deallocate-a-bstr-on-a-different-thread-than-it-was-allocated-on)<br>
+/// A: [\[...\] All together, it is okay to free string from another thread.](https://stackoverflow.com/a/31342171)
+unsafe impl Send for BString {}
+
+// In the current implementation, BString could be made `Sync`.  However, this would be a commitment to keeping BString's
+// contents immutable - and I'm not sure if such a commitment is useful or wise just yet.  You can certainly mutate BSTRs.
+
 impl Deref for BString {
     type Target = BStr;
     fn deref(&self) -> &BStr { unsafe { std::mem::transmute(self.0) } }
@@ -84,6 +95,8 @@ impl BString {
 /// [DST]:      https://doc.rust-lang.org/nomicon/exotic-sizes.html#dynamically-sized-types-dsts
 /// [UTF-16]:   https://en.wikipedia.org/wiki/UTF-16
 #[repr(transparent)] pub struct BStr(OLECHAR);
+
+// &BStr is implicitly Send and Sync.  This should be 100% fine.
 
 impl BStr {
     #[doc(hidden)]
