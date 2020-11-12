@@ -8,7 +8,7 @@ members = [
 
 [package]
 name            = "winstr"
-version         = "0.0.0-git"
+version         = "0.0.1"
 authors         = ["MaulingMonkey <git@maulingmonkey.com>"]
 edition         = "2018"
 repository      = "https://github.com/MaulingMonkey/winstr"
@@ -24,7 +24,7 @@ all-features    = true
 targets         = ["x86_64-pc-windows-msvc", "i686-pc-windows-msvc"]
 
 [dependencies]
-winstr-macros   = { path = "winstr-macros", version = "0.0.0-git" }
+winstr-macros   = { path = "winstr-macros", version = "0.0.1" }
 
 [features]
 default         = ["bstr", "display"]
