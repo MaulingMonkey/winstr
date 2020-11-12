@@ -63,6 +63,16 @@ fn parse_str(literal: &Literal) -> Result<TokenTree, TokenStream> {
     let s = literal.span();
 
     let literal = literal.to_string();
+    let (raw, mut literal) = if literal.starts_with("r") {
+        (true, &literal[1..])
+    } else {
+        (false, &literal[..])
+    };
+
+    while let Some(l) = literal.strip_prefix("#") {
+        literal = l.strip_suffix("#").ok_or_else(|| compile_error("expected string literal to havea balanced number of starting and ending `#`s", s))?;
+    }
+
     let literal = literal
         .strip_prefix("\"").ok_or_else(|| compile_error("expected string literal to start with `\"`", s))?
         .strip_suffix("\"").ok_or_else(|| compile_error("expected string literal to end with `\"`", s))?;
@@ -71,7 +81,7 @@ fn parse_str(literal: &Literal) -> Result<TokenTree, TokenStream> {
     let mut chars = literal.chars();
     while let Some(ch) = chars.next() {
         match ch {
-            '\\' => {
+            '\\' if !raw => {
                 match chars.next() {
                     Some('0') => utf16.push(b'\0' as u16),
                     Some('t') => utf16.push(b'\t' as u16),
