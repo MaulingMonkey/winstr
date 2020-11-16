@@ -25,8 +25,8 @@ use std::ptr::{null, null_mut, NonNull};
 /// ### Pointer Invariants
 /// * Win32 BSTRs may be null.
 /// * **Rust's [BString]s and &[BStr]s are never null** (instead, use [Option]&lt;BString&gt; or [Option]&lt;&amp;BStr&gt;).
-    ///
-    /// [code unit]:    https://unicode.org/glossary/#code_unit
+///
+/// [code unit]:    https://unicode.org/glossary/#code_unit
 mod invariants {}
 
 
