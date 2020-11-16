@@ -29,6 +29,16 @@ use std::ptr::{null, null_mut, NonNull};
 /// [code unit]:    https://unicode.org/glossary/#code_unit
 mod invariants {}
 
+/// Limits the string length to (u32::MAX / 2) - 1.  This avoids overflows when:
+///
+/// 1.  Multiplying by 2 (converting length in code units -> length in bytes)
+/// 2.  Adding 1 (including the null terminator)
+fn bounds_check_len32(len: impl TryInto<u32>) -> Option<u32> {
+    let len32 = len.try_into().ok()?;
+    if len32 >= std::u32::MAX / 2 { return None; } // Don't allow construction of strings where length in bytes would overflow
+    Some(len32)
+}
+
 
 
 /// `BString` is a non-null, owned, [BSTR] (32-bit length prefixed [UTF-16]ish string).
@@ -67,9 +77,7 @@ impl BString {
         // call `len()` exactly once, and use that for both allocation and for
         // iteration dimensions.
         let len : usize = code_units.len();
-
-        let len32 : u32 = len.try_into().ok()?;
-        if len32 >= std::u32::MAX/2 { return None; } // Don't allow construction of strings where length in bytes would overflow
+        let len32 = bounds_check_len32(len)?;
 
         let bstr = unsafe { SysAllocStringLen(null(), len32) }; // Allocates [u16; len+1]
 
@@ -125,7 +133,7 @@ impl BStr {
     /// [bounds]:       https://doc.rust-lang.org/nomicon/unbounded-lifetimes.html
     pub unsafe fn from_bstr(bstr: &BSTR) -> Option<&BStr> {
         let s : Option<&BStr> = std::mem::transmute(*bstr);
-        if s?.len32() == std::u32::MAX { return None; } // Don't allow construction of strings where .len0() would overflow
+        bounds_check_len32(s?.len32())?;
         s
     }
 
@@ -141,7 +149,7 @@ impl BStr {
     /// [from_bstr]:    #method.from_bstr
     pub unsafe fn from_bstr_unbounded<'b>(bstr: BSTR) -> Option<&'b BStr> {
         let s : Option<&BStr> = std::mem::transmute(bstr);
-        if s?.len32() == std::u32::MAX { return None; } // Don't allow construction of strings where .len0() would overflow
+        bounds_check_len32(s?.len32())?;
         s
     }
 
