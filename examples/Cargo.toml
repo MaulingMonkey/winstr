@@ -1,0 +1,16 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name            = "examples"
+version         = "0.0.0-git"
+publish         = false
+authors         = ["MaulingMonkey <git@maulingmonkey.com>"]
+edition         = "2018"
+license         = "Apache-2.0 OR MIT"
+
+[build-dependencies]
+natvis-pdbs     = "*"
+
+[dependencies]
+winstr.path     = ".."
+winstr.features = ["default"]
