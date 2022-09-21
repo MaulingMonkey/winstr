@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+    <!-- These could be simplified with a `x,bstr` format specifier.  However, that doesn't appear to be supported by VS Code? -->
+
+    <Type Name="winstr::bstring::danger::BStr">
+        <DisplayString>{(wchar_t*)&amp;__0,[((unsigned int *)&amp;__0)[-1] / 2]su}</DisplayString>
+        <Expand>
+            <Item Name="[len]"          >((unsigned int *)&amp;__0)[-1] / 2</Item>
+            <Item Name="[bytes]"        >((unsigned int *)&amp;__0)[-1]</Item>
+            <Item Name="[code units]"   >(wchar_t*)&amp;__0,[((unsigned int *)&amp;__0)[-1] / 2]su</Item>
+        </Expand>
+    </Type>
+
+    <Type Name="winstr::bstring::danger::BString">
+        <DisplayString>{(wchar_t*)__0.pointer,[((unsigned int *)__0.pointer)[-1] / 2]su}</DisplayString>
+        <Expand>
+            <Item Name="[len]"          >((unsigned int *)__0.pointer)[-1] / 2</Item>
+            <Item Name="[bytes]"        >((unsigned int *)__0.pointer)[-1]</Item>
+            <Item Name="[code units]"   >(wchar_t*)__0.pointer,[((unsigned int *)__0.pointer)[-1] / 2]su</Item>
+        </Expand>
+    </Type>
+
+</AutoVisualizer>
